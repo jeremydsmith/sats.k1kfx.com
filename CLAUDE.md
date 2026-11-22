@@ -82,23 +82,22 @@ in frontend code. Use `satellite.js` for orbital mechanics; do not hand-roll it.
 npm ci               # install exactly from package-lock.json (Node >= 22.18)
 npm run typecheck    # tsc --noEmit
 npm test             # vitest; needs no network (uses frozen fixtures)
-npm run build        # typecheck + production build into dist/ (relative base)
-npm run build:satellites   # same, with the intended public base /satellites/
+npm run build        # typecheck + production build into dist/ (relative base; published at /planner/)
 ```
 For a working preview with real data: `npm start` (downloads AMSAT data, then
 serves http://localhost:5173/). Behind a proxy prefix with `NODE_USE_ENV_PROXY=1`.
 Keep the project slim: remove code, scripts and dependencies that nothing uses, and do not add tooling the owner did not ask for.
 
 ## Git and review workflow
-* **Keep publishing simple.** Work on `main` in this folder; the owner commits and pushes with GitHub Desktop. There is
-  no pinned commit, no deploy token and no pull-request step. The app is published with `publish.bat` (tests, build, copy into
-  the local website folder's `satellites/`); the data is refreshed by one small scheduled workflow in the website repository
-  (see README, "Publishing"). Do not add machinery to this without the owner asking for it.
+* **Keep publishing simple.** Work on `main` in this folder. There is no pinned commit, no deploy token and no pull-request
+  step. This repository publishes itself to https://sats.k1kfx.com (hub at `/`, planner at `/planner/`) with one workflow,
+  `.github/workflows/publish.yml`: on push to `main`, four times a day and on demand it tests, downloads fresh data, builds and
+  deploys (see README, "Publishing"). Pushing to `main` publishes. Do not add machinery to this without the owner asking for it.
 * **Do not push, publish, run or change workflows, delete branches, or change DNS/domain settings without the owner's
   explicit approval** for that specific action.
-* The owner's website repository (`k1kfx.com`) is separate: only its `satellites/` folder and its one data workflow belong
-  to this app. A separate fox-hunting app lives at `/hunt` and must never be read, linked, or overwritten; the rest of the
-  site is off-limits too. Keep the base path configurable (`VITE_BASE_PATH` / `--base`, default relative).
+* The owner's other site repositories (`k1kfx.com`, `pota.k1kfx.com`, the fox-hunting app) are separate; this app never
+  reads, writes or overwrites them. `hub/` loads the shared look from `https://k1kfx.com/kit/`. Keep the base path
+  configurable (`VITE_BASE_PATH` / `--base`, default relative).
 * Install with `npm ci` (locked versions), not `npm install`, unless changing dependencies.
 * AMSAT status reports are matched to the exact `_[FM]` entry; other modes and beacon-only
   reports must never establish repeater availability (see README).

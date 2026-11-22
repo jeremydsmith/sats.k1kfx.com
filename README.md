@@ -6,7 +6,7 @@ A static web app that answers one question:
 > amateur-radio satellite passes**, each reaching at least my chosen peak elevation, all within
 > a maximum span of two to three hours?
 
-Live at **https://k1kfx.com/satellites/**. It is a **planner, not a tracker**: no live tracking, globe, Doppler,
+Live at **https://sats.k1kfx.com/planner/**. It is a **planner, not a tracker**: no live tracking, globe, Doppler,
 radio/rotator control, logging, accounts or notifications. Everything runs in the visitor's browser.
 
 Scope: FM voice repeaters, cross-band on 2 m and 70 cm, both V/U and U/V. Not built (by design): SSTV, linear
@@ -14,23 +14,28 @@ transponders, packet/APRS/telemetry/beacons, coordination with another station, 
 
 ## Publishing
 
-The live copy is the `satellites/` folder of the website repository (`k1kfx.com`, GitHub Pages, published from `main`).
-There are two independent parts. Neither needs a token.
+This repository publishes itself to **https://sats.k1kfx.com** with GitHub Pages. Pushing to `main` is publishing.
 
-* **The app** is published by hand, rarely:
-  1. Double-click `publish.bat` in this folder. It runs the tests, builds for `/satellites/`, and copies the build into the
-     local website folder's `satellites/` (never anything else, and never `satellites/data/`). If anything fails it stops
-     and copies nothing.
-  2. In GitHub Desktop, open `k1kfx.com`, click "Pull origin", check that every changed file starts with `satellites/`,
-     then commit and "Push origin".
-  3. Commit and push this repository too, so GitHub has the source that was published.
-* **The data** (`satellites/data/elements.json` and `status.json`) refreshes itself. The website repository's workflow
-  `.github/workflows/update-satellites.yml` runs four times a day, and from its "Run workflow" button in the Actions tab.
-  It checks out this repository's `main`, runs `scripts/refresh-data.ts --strict` and `scripts/validate-data.ts`, and
-  commits only those two files. If a download or the check fails, nothing is committed and the data already on the site
-  stays. The page reads the data files on every load, so new data needs no rebuild.
+| Address | Comes from |
+| --- | --- |
+| `sats.k1kfx.com/` | `hub/` (the Satellites page, styled by the shared kit at `k1kfx.com/kit/`) |
+| `sats.k1kfx.com/planner/` | the planner build (`dist/`), with fresh data in `planner/data/` |
 
-A separate fox-hunting app lives at `/hunt` on the same site. Nothing here reads, writes or links to it.
+One workflow, `.github/workflows/publish.yml`, does everything. It runs on every push to `main`, four times a day, and
+from its "Run workflow" button in the Actions tab:
+
+1. `npm ci` and `npm test`
+2. `scripts/refresh-data.ts --strict` and `scripts/validate-data.ts` (fresh Keplers and AMSAT reports)
+3. `npm run build`, then `hub/` + `dist/` → the published site
+
+If any step fails, nothing is published and the site already live stays as it is. The data is never committed; it is
+downloaded fresh for every publish. Scheduled runs that change only the data keep the same build id, so open pages do not
+claim the planner was updated.
+
+One-time setup (already done once; only needed again for a new repository): Settings → Pages → Source "GitHub Actions",
+custom domain `sats.k1kfx.com`, Enforce HTTPS; DNS has a CNAME `sats` → `jeremydsmith.github.io` (DNS only).
+
+The old address `k1kfx.com/satellites/` is a redirect page to the planner, kept so older calendar entries still work.
 
 ## Running it on your own computer
 
@@ -184,7 +189,8 @@ analytics or cookies.
 ## Project layout
 
 ```
-publish.bat      test, build and copy the app into the local website folder
+hub/             the sats.k1kfx.com front page and its photo (plain HTML, no build)
+.github/workflows/publish.yml   test, refresh data, build and publish to GitHub Pages
 src/
   domain/        types, interval helpers, policy constants
   catalog/       satellite identity · FM repeater config · restrictions

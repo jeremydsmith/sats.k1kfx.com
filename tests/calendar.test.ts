@@ -225,7 +225,7 @@ describe('description: compact, readable, exact', () => {
         'ISS repeater availability depends on station operations.',
         '',
         'Static calendar copy—recheck times and status:',
-        'https://k1kfx.com/satellites/',
+        'https://sats.k1kfx.com/planner/',
       ].join('\n'),
     );
   });
@@ -241,7 +241,7 @@ describe('description: compact, readable, exact', () => {
     expect(single.length).toBeLessThan(600);
   });
   it('ends with ONE short static-copy sentence and the planner link', () => {
-    expect(single.split('\n').slice(-2)).toEqual(['Static calendar copy—recheck times and status:', 'https://k1kfx.com/satellites/']);
+    expect(single.split('\n').slice(-2)).toEqual(['Static calendar copy—recheck times and status:', 'https://sats.k1kfx.com/planner/']);
     expect(single.match(/k1kfx\.com/g)).toHaveLength(1);
     expect(single.match(/Static calendar copy/g)).toHaveLength(1);
   });
@@ -291,7 +291,7 @@ describe('several passes: compact blocks, shared notes once', () => {
     expect(multi.match(/ISS repeater availability depends on station operations\./g)).toHaveLength(1);
     expect(multi.match(/74\.4 Hz CTCSS tone/g)).toHaveLength(1); // two SO-50 passes, one note
     expect(multi).toContain('SO-50: The repeater has a 10-minute timer'); // several satellites: the note says which
-    expect(multi.split('\n').slice(-2)).toEqual(['Static calendar copy—recheck times and status:', 'https://k1kfx.com/satellites/']);
+    expect(multi.split('\n').slice(-2)).toEqual(['Static calendar copy—recheck times and status:', 'https://sats.k1kfx.com/planner/']);
   });
   it('a pass on another local day than the first shows its date; the others do not', () => {
     const late = so50a({ riseMs: Date.UTC(2026, 10, 15, 6, 30, 0), peakMs: Date.UTC(2026, 10, 15, 6, 36, 0), setMs: Date.UTC(2026, 10, 15, 6, 42, 0) }); // 12:30 AM CST on Sunday

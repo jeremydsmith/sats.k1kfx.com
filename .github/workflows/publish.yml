@@ -1,0 +1,72 @@
+# Publishes https://sats.k1kfx.com from this repository. That is ALL this does.
+#
+#   /          <- hub/            (the Satellites page)
+#   /planner/  <- the planner build, with freshly downloaded data in planner/data/
+#
+# Runs on every push to main, four times a day (fresh Keplers and AMSAT reports), and from the "Run workflow" button.
+# If the tests, the download, the data check or the build fail, nothing is published and the live site stays as it is.
+# The data is never committed. Settings -> Pages -> Source must be "GitHub Actions".
+
+name: Publish sats.k1kfx.com
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 3,9,15,21 * * *' # 03:17, 09:17, 15:17 and 21:17 UTC; GitHub may start a run late or skip one
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install and test
+        run: |
+          npm ci
+          npm test
+
+      - name: Download fresh data and check it (any failure stops here; nothing is published)
+        run: |
+          node scripts/refresh-data.ts --strict --deadline-min 6
+          node scripts/validate-data.ts
+
+      - name: Build the planner
+        run: npm run build
+
+      - name: Assemble the site
+        run: |
+          mkdir _site
+          cp -r hub/. _site/
+          cp -r dist _site/planner
+          test -f _site/index.html && test -f _site/planner/index.html && test -f _site/planner/data/elements.json && test -f _site/planner/data/status.json
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

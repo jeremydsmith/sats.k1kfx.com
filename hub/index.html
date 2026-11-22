@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>K1KFX · Satellites</title>
+  <meta name="description" content="K1KFX amateur radio satellites: talking through FM satellites with a handheld radio, and a planner for good pass times in Lincoln, Nebraska.">
+  <link rel="stylesheet" href="https://k1kfx.com/kit/k1kfx.css">
+  <script src="https://k1kfx.com/kit/k1kfx.js" defer></script>
+  <style>
+    .hero { padding: 56px 0 48px; display: grid; gap: 24px 64px; grid-template-columns: 1fr; align-items: end; }
+    @media (min-width: 860px) { .hero { grid-template-columns: 1.1fr 1fr; } }
+    .hero h1 { font-size: clamp(48px, 8vw, 104px); margin-top: 16px; }
+    .hero h1 .k-serif { color: var(--accent-text); }
+    .hero p { color: var(--muted); font-size: 19px; }
+    .kicker { font-size: 14px; }
+
+    figure.shot { margin-bottom: 96px; }
+    figure.shot .k-photo { aspect-ratio: 16 / 9; }
+    figure.shot figcaption { margin-top: 12px; color: var(--muted); font-size: 15px; }
+
+    .head { display: grid; gap: 12px 64px; grid-template-columns: 1fr; margin-bottom: 40px; }
+    @media (min-width: 860px) { .head.two { grid-template-columns: 1fr 1fr; align-items: end; } }
+    .head h2 { margin: 8px 0 0; }
+    .head p { color: var(--muted); }
+
+    .terms { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .terms .k-card { padding: 28px; }
+    .terms h3 { font-size: 22px; }
+    .terms p { color: var(--muted); font-size: 15px; }
+
+    ol.steps { list-style: none; counter-reset: step; display: grid; border-top: 1px solid var(--line); }
+    ol.steps li {
+      counter-increment: step;
+      display: grid; grid-template-columns: 56px 1fr; gap: 4px 16px;
+      padding: 24px 0; border-bottom: 1px solid var(--line);
+    }
+    @media (min-width: 860px) { ol.steps li { grid-template-columns: 80px 260px 1fr; align-items: baseline; } }
+    ol.steps li::before { content: "0" counter(step); font-family: var(--font-mono); font-size: 13px; color: var(--accent-text); grid-row: span 2; }
+    @media (min-width: 860px) { ol.steps li::before { grid-row: auto; } }
+    ol.steps b { font-family: var(--font-display); font-weight: normal; font-size: 20px; letter-spacing: -0.01em; }
+    ol.steps span { color: var(--muted); }
+
+    .tools { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .tool { display: grid; grid-template-rows: auto 1fr auto; gap: 28px; padding: 32px; min-height: 260px; }
+    .tool h3 { font-size: clamp(26px, 2.6vw, 32px); margin: 0 0 10px; }
+    .tool p { color: var(--muted); font-size: 15px; }
+    .tool .go { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 15px; }
+    .tool .go i {
+      font-style: normal; width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center; background: var(--ink); color: var(--bg);
+      transition: background .15s, transform .15s;
+    }
+    a.tool:hover .go i { background: var(--accent); color: var(--accent-ink); transform: rotate(-45deg); }
+    .pill { justify-self: start; display: inline-block; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 13px; color: var(--muted); }
+    .tool-note { color: var(--muted); font-size: 15px; }
+    .tool-note ul { margin: 12px 0 0 18px; display: grid; gap: 6px; }
+
+    .more { margin-top: 40px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header data-k1kfx-nav data-current="sats"></header>
+
+  <div class="k-wrap">
+    <section class="hero">
+      <div>
+        <div class="k-tag kicker"><span class="dot"></span>Amateur satellites</div>
+        <h1 class="k-display">Talking through <span class="k-serif">space.</span></h1>
+      </div>
+      <p>A handheld radio and a hand-held antenna are enough to talk through a satellite passing overhead. Kids get to aim the antenna, hear the satellite come up out of the noise, and talk to someone hundreds of miles away.</p>
+    </section>
+
+    <figure class="shot">
+      <div class="k-photo"><img src="img/sats-kids.jpg" width="1600" height="900" alt="Five boys in a backyard holding up handheld radios and satellite antennas"></div>
+      <figcaption>Club members with handheld radios and antennas, ready for a pass.</figcaption>
+    </figure>
+
+    <section class="k-section" aria-labelledby="what">
+      <div class="head two">
+        <div>
+          <div class="k-tag kicker"><span class="dot"></span>What it is</div>
+          <h2 id="what">How it works</h2>
+        </div>
+        <p>A few amateur satellites, and the International Space Station, carry FM repeaters. You transmit up on one band and hear everyone in range on the other, for as long as the satellite is above the horizon.</p>
+      </div>
+      <div class="terms">
+        <div class="k-card">
+          <h3>Pass</h3>
+          <p>One trip of a satellite across the sky, from rising (AOS) to setting (LOS). Usually ten minutes or so.</p>
+        </div>
+        <div class="k-card">
+          <h3>Elevation</h3>
+          <p>How high the satellite climbs. Higher passes are longer and easier, so we look for good ones.</p>
+        </div>
+        <div class="k-card">
+          <h3>Footprint</h3>
+          <p>Everyone who can see the satellite at the same moment. That's who we can talk to.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="k-section" aria-labelledby="day">
+      <div class="head">
+        <div class="k-tag kicker"><span class="dot"></span>How it goes</div>
+        <h2 id="day">A satellite session</h2>
+      </div>
+      <ol class="steps">
+        <li><b>Plan the passes</b><span>Find an evening or weekend when several good passes come close together.</span></li>
+        <li><b>Set up</b><span>Radios charged, antennas assembled, and everyone knows which way the satellite will rise.</span></li>
+        <li><b>Track it</b><span>Point the antenna and follow the satellite across the sky as it moves.</span></li>
+        <li><b>Make contacts</b><span>Trade callsigns and locations quickly. A pass goes by fast.</span></li>
+        <li><b>Do it again</b><span>With a few passes in a row, everyone gets a turn.</span></li>
+      </ol>
+    </section>
+
+    <section class="k-section" aria-labelledby="tools">
+      <div class="head">
+        <div class="k-tag kicker"><span class="dot"></span>Tools</div>
+        <h2 id="tools">Plan a pass</h2>
+      </div>
+      <div class="tools">
+        <a class="k-card tool" href="planner/">
+          <span class="pill">Planner</span>
+          <div>
+            <h3>Satellite Pass Planner</h3>
+            <p>Finds the times in the next few weeks when several good FM satellite passes fall within a couple of hours, so a club event gets more than one chance.</p>
+          </div>
+          <span class="go">Plan a pass <i>→</i></span>
+        </a>
+        <div class="tool-note">
+          <p>What makes it different:</p>
+          <ul>
+            <li>It only counts satellites with a recent "heard" report on AMSAT.</li>
+            <li>It fits passes into the times you're actually free.</li>
+            <li>It saves events and re-checks them later.</li>
+          </ul>
+        </div>
+      </div>
+      <p class="more">Want to know more? <a href="https://www.amsat.org/">AMSAT</a> keeps the list of active satellites and their frequencies.</p>
+    </section>
+  </div>
+
+  <footer data-k1kfx-footer></footer>
+</body>
+</html>

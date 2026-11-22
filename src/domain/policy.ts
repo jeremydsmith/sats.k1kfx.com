@@ -83,4 +83,4 @@ export const CALENDAR_SETUP_MIN = 10;
 export const CALENDAR_POST_MIN = 5;
 export const CALENDAR_MIN_EVENT_MIN = 15;
 /** The link back to the planner placed in every exported calendar entry (fixed; never the current page address). */
-export const PLANNER_URL = 'https://k1kfx.com/satellites/';
+export const PLANNER_URL = 'https://sats.k1kfx.com/planner/';

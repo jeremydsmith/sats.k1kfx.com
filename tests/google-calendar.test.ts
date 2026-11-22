@@ -79,7 +79,7 @@ describe('the link', () => {
     expect(p.details.split('\n').slice(0, 4)).toEqual(['ISS — Saturday, November 14, 2026', 'All times CST', '', 'Pass: 5:32:04–5:42:50 PM']);
     expect(p.details).not.toMatch(/<[a-z/][^>]*>/i);
     expect(p.details).not.toMatch(/&(?:lt|gt|amp|nbsp);/);
-    expect(p.details.split('\n').slice(-2)).toEqual(['Static calendar copy—recheck times and status:', 'https://k1kfx.com/satellites/']);
+    expect(p.details.split('\n').slice(-2)).toEqual(['Static calendar copy—recheck times and status:', 'https://sats.k1kfx.com/planner/']);
     expect(url).toContain('%0A'); // newlines are percent-encoded
   });
   it('the whole link is plain ASCII with nothing that could break it in a message: no spaces, line breaks, quotes, parentheses or asterisks', () => {
