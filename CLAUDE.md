@@ -131,6 +131,9 @@ examples use an arbitrary location, never the owner's real one.
 ## Data sources (see README for details)
 AMSAT `nasabare.txt` (TLEs) and the AMSAT status API
 `https://status.amsat.org/api/v1/` (poll no more than every 5 minutes; descriptive
-User-Agent; reports are CC BY 4.0, attribution shown in the app). CelesTrak was
-not used. Frequencies/restrictions come from AMSAT's human-readable FM page and
+User-Agent; reports are CC BY 4.0, attribution shown in the app). Backup for the
+TLEs only, used when AMSAT's file fails or is unusable (owner's decision, 25 Nov 2026,
+after AMSAT served an empty nasabare.txt): SatNOGS DB `https://db.satnogs.org/api/tle/`
+(Space-Track.org elements, CC BY-SA 4.0); same validation, and `elements.json` records the
+source actually used. CelesTrak was not used (unreachable when this was added). Frequencies/restrictions come from AMSAT's human-readable FM page and
 are hand-maintained.

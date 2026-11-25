@@ -35,8 +35,6 @@ claim the planner was updated.
 One-time setup (already done once; only needed again for a new repository): Settings → Pages → Source "GitHub Actions",
 custom domain `sats.k1kfx.com`, Enforce HTTPS; DNS has a CNAME `sats` → `jeremydsmith.github.io` (DNS only).
 
-The old address `k1kfx.com/satellites/` is a redirect page to the planner, kept so older calendar entries still work.
-
 ## Running it on your own computer
 
 Needs [Node.js](https://nodejs.org/) 22.18 or newer. No account or key is involved.
@@ -57,14 +55,15 @@ and synthetic geometry in `tests/factory.ts`.
 
 | Data | Source | Used for |
 |---|---|---|
-| Orbital elements (Keplers) | AMSAT `https://www.amsat.org/tle/current/nasabare.txt` (3-line TLEs, checksum-validated) | Pass prediction |
+| Orbital elements (Keplers) | AMSAT `https://www.amsat.org/tle/current/nasabare.txt` (3-line TLEs, checksum-validated); backup only when AMSAT's file fails or is unusable: SatNOGS DB `https://db.satnogs.org/api/tle/?format=json` (Space-Track.org elements, CC BY-SA 4.0, same checks) | Pass prediction |
 | Repeater activity reports | AMSAT Satellite Status API `https://status.amsat.org/api/v1/reports.php` | Eligibility |
 | Frequencies, tones, restrictions | AMSAT "FM Satellites" web page (HTML only) | Hand-maintained catalog |
 
 * Only `scripts/refresh-data.ts` talks to AMSAT. The browser cannot (AMSAT sends no cross-site permission headers) and
   never tries: it loads the two JSON files from the site's own address. Pressing Search never downloads anything.
-* One run makes one request for the elements and one status request per catalog repeater (17 today), spaced a second
-  apart. The status API asks clients to identify themselves and poll at most every 5 minutes.
+* One run makes one request for the elements (a second one, to SatNOGS, only if AMSAT's file fails) and one status
+  request per catalog repeater (17 today), spaced a second apart. `elements.json` records which source was used, and the
+  app names it. The status API asks clients to identify themselves and poll at most every 5 minutes.
 * Failure policy: never fabricate data, and never advance a timestamp on a failed download. With `--strict`, any failure
   writes nothing at all. A well-formed answer with no reports is a success (that repeater simply stays ineligible).
 * Report data is © AMSAT, **CC BY 4.0**, attributed in the app. Callsigns are not stored in the published file.

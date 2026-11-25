@@ -8,7 +8,9 @@
  *   status-malformed   one repeater answers with a body that has no "data" array
  *   status-unreadable  one repeater answers rows that cannot be read
  *   status-future      succeeds, but one report is dated in the future (the validator must refuse it)
- *   elements-fail      the orbital download fails
+ *   elements-fail      the orbital download fails from AMSAT and from the SatNOGS backup
+ *   amsat-503          AMSAT's orbital file fails (HTTP 503); the SatNOGS backup works
+ *   amsat-empty        AMSAT's orbital file is served empty; the SatNOGS backup works
  *   status-hang        status requests never answer (they only end when their abort signal fires)
  *   elements-hang      the orbital request never answers
  */
@@ -45,7 +47,18 @@ globalThis.fetch = async (input, init) => {
   const url = String(input);
   if (mode === 'elements-hang' && url.includes('nasabare')) return hang(init?.signal);
   if (mode === 'status-hang' && url.includes('reports.php')) return hang(init?.signal);
-  if (url.includes('nasabare')) return mode === 'elements-fail' ? respond('down', 503) : respond(tleText());
+  if (url.includes('nasabare')) {
+    if (mode === 'elements-fail' || mode === 'amsat-503') return respond('down', 503);
+    if (mode === 'amsat-empty') return respond(''); // what AMSAT served on 25 Nov 2026
+    return respond(tleText());
+  }
+  if (url.includes('db.satnogs.org')) {
+    if (mode === 'elements-fail') return respond('down', 503);
+    const lines = tleText().trim().split('\n');
+    const rows = [];
+    for (let i = 0; i < lines.length; i += 3) rows.push({ tle0: '0 ' + lines[i], tle1: lines[i + 1], tle2: lines[i + 2], norad_cat_id: Number(lines[i + 1].slice(2, 7)) });
+    return respond(rows);
+  }
   if (url.includes('reports.php')) {
     const key = new URL(url).searchParams.get('name');
     const row = (report, t) => ({ name: key, norad_cat_id: null, report, observation_time: new Date(t).toISOString(), callsign: 'N0CALL' });

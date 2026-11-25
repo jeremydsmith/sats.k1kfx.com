@@ -5,11 +5,11 @@
  *   node scripts/refresh-data.ts [--strict] [--deadline-min N]
  *
  * Writes:
- *   public/data/elements.json  AMSAT TLEs, filtered to the catalog
+ *   public/data/elements.json  AMSAT TLEs (SatNOGS DB as a backup if AMSAT's file fails), filtered to the catalog
  *   public/data/status.json    recent AMSAT status reports for each catalog FM repeater
  *
  * Failure policy (never fabricate data, never advance a timestamp on a failed download):
- *   - elements download/validation fails  -> exit 1, nothing written.
+ *   - elements download/validation fails from AMSAT AND from the SatNOGS backup  -> exit 1, nothing written.
  *   - status is ALL-OR-NOTHING: it is written only if every repeater entry downloaded and parsed. If any request fails,
  *     status.json is NOT written: a file already on disk stays in place with its older download time, and with none the
  *     app treats every repeater as "status unknown".
@@ -77,15 +77,43 @@ async function writeAtomic(name: string, text: string): Promise<void> {
   await rename(tmp, join(outDir, name));
 }
 
+/** SatNOGS DB answers JSON rows {tle0: "0 NAME", tle1, tle2}; turn them into ordinary 3-line text for parseTleText. */
+function satnogsToTleText(body: string): string {
+  const rows: unknown = JSON.parse(body);
+  if (!Array.isArray(rows)) throw new Error('SatNOGS answer is not a list');
+  const out: string[] = [];
+  for (const r of rows as Array<Record<string, unknown> | null>) {
+    if (r && typeof r.tle0 === 'string' && typeof r.tle1 === 'string' && typeof r.tle2 === 'string') {
+      out.push(r.tle0.replace(/^0 /, ''), r.tle1, r.tle2);
+    }
+  }
+  return out.join('\n');
+}
+
+// AMSAT first; SatNOGS only when AMSAT's file fails or is unusable (e.g. 25 Nov 2026, when nasabare.txt was served empty).
+const ELEMENT_SOURCES = [
+  { ref: SOURCES.amsatTle, text: () => fetchText(SOURCES.amsatTle.url) },
+  { ref: SOURCES.satnogsTle, text: async () => satnogsToTleText(await fetchText(SOURCES.satnogsTle.url)) },
+];
+
 async function downloadElements(): Promise<ElementsFile> {
-  const text = await fetchText(SOURCES.amsatTle.url);
-  const { records, rejected } = parseTleText(text);
-  if (records.length < 20) throw new Error(`Only ${records.length} valid element sets parsed; refusing to publish`);
-  const { sets, missing } = selectElements(records, SATELLITES.map((s) => s.noradId));
-  if (sets.length === 0) throw new Error('No catalog satellites found in the download');
-  console.log(`elements: ${sets.length} catalog sets (${records.length} parsed, ${rejected.length} rejected)`);
-  if (missing.length) console.warn(`elements: MISSING catalog IDs: ${missing.join(', ')}`);
-  return { schema: 1, source: { name: SOURCES.amsatTle.label, url: SOURCES.amsatTle.url }, downloadedAt: new Date().toISOString(), sets, missing };
+  let last: unknown;
+  for (const src of ELEMENT_SOURCES) {
+    try {
+      const { records, rejected } = parseTleText(await src.text());
+      if (records.length < 20) throw new Error(`Only ${records.length} valid element sets parsed`);
+      const { sets, missing } = selectElements(records, SATELLITES.map((s) => s.noradId));
+      if (sets.length === 0) throw new Error('No catalog satellites found in the download');
+      console.log(`elements: ${sets.length} catalog sets from ${src.ref.label} (${records.length} parsed, ${rejected.length} rejected)`);
+      if (missing.length) console.warn(`elements: MISSING catalog IDs: ${missing.join(', ')}`);
+      return { schema: 1, source: { name: src.ref.label, url: src.ref.url }, downloadedAt: new Date().toISOString(), sets, missing };
+    } catch (e) {
+      last = e;
+      console.warn(`elements: ${src.ref.label} unusable (${e instanceof Error ? e.message : e})`);
+      if (deadline?.aborted) break;
+    }
+  }
+  throw new Error(`No usable orbital elements from any source; refusing to publish (last: ${last instanceof Error ? last.message : last})`);
 }
 
 async function downloadStatus(): Promise<StatusAssembly> {

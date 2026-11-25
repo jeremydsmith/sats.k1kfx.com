@@ -213,7 +213,11 @@ export function App() {
         <details>
           <summary>About this planner, data sources and limits</summary>
           <ul>
-            <li>Orbits are calculated in your browser with SGP4 (satellite.js) from public orbital elements published by <a href={SOURCES.amsatTle.url}>AMSAT</a>.</li>
+            <li>
+              Orbits are calculated in your browser with SGP4 (satellite.js) from public orbital elements published by <a href={SOURCES.amsatTle.url}>AMSAT</a>,
+              or by <a href="https://db.satnogs.org/">SatNOGS DB</a> (CC BY-SA 4.0) when AMSAT’s file is unavailable.
+              {data && <> This data: <a href={data.elements.source.url}>{data.elements.source.name}</a>.</>}
+            </li>
             {data && (
               <li>
                 <strong>Data and timing</strong>

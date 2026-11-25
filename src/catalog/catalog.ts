@@ -32,6 +32,11 @@ export const SOURCES = {
     label: 'AMSAT orbital elements (nasabare.txt)',
     url: 'https://www.amsat.org/tle/current/nasabare.txt',
   },
+  // Backup only, used when AMSAT's file fails or is unusable. SatNOGS DB republishes Space-Track.org elements (CC BY-SA 4.0).
+  satnogsTle: {
+    label: 'SatNOGS DB orbital elements (from Space-Track.org; CC BY-SA 4.0)',
+    url: 'https://db.satnogs.org/api/tle/?format=json',
+  },
   arissStatus: {
     label: 'ARISS: Current Status of ISS Stations (page dated Nov 4, 2026)',
     url: 'https://www.ariss.org/current-status-of-iss-stations.html',

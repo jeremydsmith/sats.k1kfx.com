@@ -87,6 +87,22 @@ describe('strict refresh + validation: a failure leaves both published data file
     expect(r.after.site).toEqual(r.after.scratch);
   }, 90_000);
 
+  for (const mode of ['amsat-503', 'amsat-empty'] as const) {
+    it(`${mode}: AMSAT's orbital file is unusable, so the SatNOGS backup is used and labelled as the source`, () => {
+      const r = workflow(mode);
+      expect(r.stoppedAt).toBeNull();
+      const el = JSON.parse(r.after.site['elements.json']!) as { source: { url: string }; sets: unknown[] };
+      expect(el.source.url).toContain('db.satnogs.org');
+      expect(el.sets.length).toBeGreaterThan(0);
+    }, 90_000);
+  }
+
+  it('AMSAT works: its file is used and the backup is never asked', () => {
+    const r = workflow('ok');
+    expect((JSON.parse(r.after.site['elements.json']!) as { source: { url: string } }).source.url).toContain('amsat.org');
+    expect(r.refresh.out).not.toContain('SatNOGS');
+  }, 90_000);
+
   it('the timestamp is never advanced by a failed status download, even in the non-strict local run', () => {
     const { scratch } = folders();
     const r = run('refresh-data.ts', [], { STUB_MODE: 'status-503', SAT_PLANNER_DATA_DIR: scratch });
